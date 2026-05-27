@@ -87,7 +87,15 @@ flutter run -d windows  # Mode Desktop (Rekomendasi untuk Development)
 
 ---
 
+## 🎨 Design Philosophy
+Aplikasi ini tidak menggunakan Tailwind. Desain UI murni dibuat dari *scratch* (Vanilla Flutter Widgets) untuk memastikan:
+- **Rich Aesthetics:** Transisi mulus dan palet warna yang premium (WaroengColors / ServeColors).
+- **Dynamic UX:** Setiap tombol dan *card* memiliki *visual feedback* yang responsif.
+- **Scalability:** Penggunaan `const` dan *reusable custom widgets* (`ServeCard`, `ServeBadge`, `ServeEmptyState`).
+
+---
+
 <div align="center">
-  <i>"Ubah WhatsApp-an Jadi Bisnis Profesional."</i><br><br>
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=4F46E5&height=100&section=footer" />
+  <i>Build by Vermont Automated Digital</i><br><br>
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=F75C03&height=100&section=footer" />
 </div>
