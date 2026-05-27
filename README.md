@@ -103,6 +103,6 @@ Aplikasi ini tidak menggunakan Tailwind. Desain UI murni dibuat dari *scratch* (
 ---
 
 <div align="center">
-  <i>Dibuat dengan ❤️ untuk kemajuan UMKM.</i><br><br>
+  <i>Build by Vermont Automated Digital</i><br><br>
   <img src="https://capsule-render.vercel.app/api?type=waving&color=F75C03&height=100&section=footer" />
 </div>
