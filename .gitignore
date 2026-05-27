@@ -1,0 +1,48 @@
+# =========================
+# Laravel Backend (nadi_backend)
+# =========================
+nadi_backend/vendor/
+nadi_backend/node_modules/
+nadi_backend/public/build
+nadi_backend/public/hot
+nadi_backend/public/storage
+nadi_backend/storage/*.key
+nadi_backend/.env
+nadi_backend/.env.backup
+nadi_backend/.env.production
+nadi_backend/.phpunit.result.cache
+nadi_backend/Homestead.json
+nadi_backend/Homestead.yaml
+nadi_backend/auth.json
+nadi_backend/.idea
+nadi_backend/.vscode
+
+# =========================
+# Flutter Mobile (nadi_mobile)
+# =========================
+nadi_mobile/.dart_tool/
+nadi_mobile/.flutter-plugins
+nadi_mobile/.flutter-plugins-dependencies
+nadi_mobile/.pub-cache/
+nadi_mobile/.pub/
+nadi_mobile/build/
+nadi_mobile/coverage/
+nadi_mobile/app.*.symbols
+nadi_mobile/app.*.map.json
+nadi_mobile/android/app/debug
+nadi_mobile/android/app/profile
+nadi_mobile/android/app/release
+nadi_mobile/ios/Flutter/.last_build_id
+nadi_mobile/linux/flutter/ephemeral/
+nadi_mobile/macos/Flutter/ephemeral/
+nadi_mobile/windows/flutter/ephemeral/
+
+# =========================
+# OS / IDE Files
+# =========================
+.DS_Store
+Thumbs.db
+*.log
+*.sqlite
+.idea/
+.vscode/
