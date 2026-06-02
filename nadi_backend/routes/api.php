@@ -10,8 +10,10 @@ use App\Http\Controllers\Api\MenuItemController;
 use App\Http\Controllers\Api\InventoryItemController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\NoteController;
+use App\Http\Controllers\Api\PaymentController;
 
 // Public routes
+Route::post('/payments/webhook', [PaymentController::class, 'handleWebhook']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 
@@ -87,6 +89,12 @@ Route::middleware(['auth:sanctum', 'workspace'])->group(function () {
         Route::put('/tasks/{id}', [TaskController::class, 'update']);
         Route::delete('/tasks/{id}', [TaskController::class, 'destroy']);
         Route::patch('/tasks/{id}/toggle', [TaskController::class, 'toggle']);
+    });
+
+    // Payments
+    Route::middleware('permission:manage_payments')->group(function () {
+        Route::post('/payments/create-link', [PaymentController::class, 'createPaymentLink']);
+        Route::get('/payments/{invoiceId}/status', [PaymentController::class, 'getPaymentStatus']);
     });
 
     // Notes

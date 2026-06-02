@@ -11,7 +11,7 @@ class InvoiceItem extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id', 'invoice_id', 'name', 'quantity', 'unit_price', 'total',
+        'id', 'workspace_id', 'invoice_id', 'name', 'quantity', 'unit_price', 'total',
     ];
 
     protected function casts(): array

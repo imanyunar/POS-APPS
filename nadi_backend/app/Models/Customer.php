@@ -11,7 +11,7 @@ class Customer extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id', 'user_id', 'name', 'phone', 'email', 'internal_notes',
+        'id', 'user_id', 'workspace_id', 'name', 'phone', 'email', 'internal_notes',
     ];
 
     protected static function boot(): void

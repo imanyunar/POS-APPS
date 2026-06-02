@@ -27,11 +27,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         onRefresh: () => ref.read(dashboardVitalsNotifierProvider.notifier).refresh(),
         child: CustomScrollView(
           slivers: [
-            // --- Gradient Header ---
             SliverToBoxAdapter(child: _buildHeader(userName)),
 
-            // --- Vitals Cards ---
             const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+            // Vitals Cards
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -98,6 +98,67 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         value: '${vitals.todayTasksCompleted}',
                         fullWidth: true,
                       ),
+
+                      // --- Reminders Stack ---
+                      if (vitals.pendingInvoicesCount > 0 || vitals.lowStockCount > 0) ...[
+                        const SizedBox(height: 32),
+                        Text('Pengingat', style: ServeTypography.h3(color: ServeColors.textPrimary)),
+                        const SizedBox(height: 16),
+                      ],
+                      if (vitals.pendingInvoicesCount > 0)
+                        _ReminderCard(
+                          icon: Icons.receipt_long_rounded,
+                          title: '${vitals.pendingInvoicesCount} invoice belum dibayar',
+                          subtitle: 'Total ${ServeFormatters.rupiahCompact(vitals.pendingInvoicesAmount)}',
+                          color: ServeColors.danger,
+                          bgColor: ServeColors.dangerBg,
+                          onTap: () => context.go('/invoices'),
+                        ),
+                      if (vitals.lowStockCount > 0)
+                        Padding(
+                          padding: EdgeInsets.only(top: vitals.pendingInvoicesCount > 0 ? 8 : 0),
+                          child: _ReminderCard(
+                            icon: Icons.inventory_2_rounded,
+                            title: '$vitals.lowStockCount item stok menipis',
+                            subtitle: 'Segera lakukan pengadaan barang',
+                            color: ServeColors.warning,
+                            bgColor: ServeColors.warningBg,
+                            onTap: () => context.go('/inventory'),
+                          ),
+                        ),
+
+                      const SizedBox(height: 32),
+                      Text('Menu Cepat', style: ServeTypography.h3(color: ServeColors.textPrimary)),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _QuickAction(
+                            icon: Icons.receipt_long_rounded,
+                            label: 'Pesanan',
+                            color: ServeColors.accentTeal,
+                            onTap: () => context.go('/orders'),
+                          ),
+                          _QuickAction(
+                            icon: Icons.people_alt_rounded,
+                            label: 'Pelanggan',
+                            color: ServeColors.accentIndigo,
+                            onTap: () => context.go('/customers'),
+                          ),
+                          _QuickAction(
+                            icon: Icons.inventory_2_rounded,
+                            label: 'Inventaris',
+                            color: ServeColors.warning,
+                            onTap: () => context.go('/inventory'),
+                          ),
+                          _QuickAction(
+                            icon: Icons.sticky_note_2_rounded,
+                            label: 'Catatan',
+                            color: ServeColors.success,
+                            onTap: () => context.go('/notes'),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                   loading: () => const SizedBox(
@@ -124,50 +185,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ],
                     ),
                   ),
-                ),
-              ),
-            ),
-
-            // --- Quick Actions ---
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Menu Cepat', style: ServeTypography.h3(color: ServeColors.textPrimary)),
-                    const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _QuickAction(
-                          icon: Icons.receipt_long_rounded,
-                          label: 'Pesanan',
-                          color: ServeColors.accentTeal,
-                          onTap: () => context.go('/orders'),
-                        ),
-                        _QuickAction(
-                          icon: Icons.people_alt_rounded,
-                          label: 'Pelanggan',
-                          color: ServeColors.accentIndigo,
-                          onTap: () => context.go('/customers'),
-                        ),
-                        _QuickAction(
-                          icon: Icons.inventory_2_rounded,
-                          label: 'Inventaris',
-                          color: ServeColors.warning,
-                          onTap: () => context.go('/inventory'),
-                        ),
-                        _QuickAction(
-                          icon: Icons.sticky_note_2_rounded,
-                          label: 'Catatan',
-                          color: ServeColors.success,
-                          onTap: () => context.go('/notes'),
-                        ),
-                      ],
-                    ),
-                  ],
                 ),
               ),
             ),
@@ -302,7 +319,76 @@ class _VitalCard extends StatelessWidget {
   }
 }
 
-class _QuickAction extends StatelessWidget {
+class _ReminderCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final Color bgColor;
+  final VoidCallback onTap;
+
+  const _ReminderCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.bgColor,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withValues(alpha: 0.3)),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: ServeTypography.labelMedium(color: color)),
+                    const SizedBox(height: 2),
+                    Text(subtitle, style: ServeTypography.bodySmall(color: ServeColors.textSecondary)),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: color, size: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _QuickAction extends StatefulWidget {
   final IconData icon;
   final String label;
   final Color color;
@@ -316,22 +402,60 @@ class _QuickAction extends StatelessWidget {
   });
 
   @override
+  State<_QuickAction> createState() => _QuickActionState();
+}
+
+class _QuickActionState extends State<_QuickAction> with SingleTickerProviderStateMixin {
+  late AnimationController _scaleController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _scaleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.easeOutBack),
+    );
+  }
+
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(16),
+      onTapDown: (_) => _scaleController.forward(),
+      onTapUp: (_) {
+        _scaleController.reverse();
+        widget.onTap();
+      },
+      onTapCancel: () => _scaleController.reverse(),
+      child: AnimatedBuilder(
+        animation: _scaleAnimation,
+        builder: (context, child) => Transform.scale(
+          scale: _scaleAnimation.value,
+          child: child,
+        ),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: widget.color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(widget.icon, color: widget.color, size: 26),
             ),
-            child: Icon(icon, color: color, size: 26),
-          ),
-          const SizedBox(height: 8),
-          Text(label, style: ServeTypography.labelSmall(color: ServeColors.textSecondary)),
-        ],
+            const SizedBox(height: 8),
+            Text(widget.label, style: ServeTypography.labelSmall(color: ServeColors.textSecondary)),
+          ],
+        ),
       ),
     );
   }

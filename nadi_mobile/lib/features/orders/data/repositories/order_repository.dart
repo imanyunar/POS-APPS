@@ -64,4 +64,24 @@ class OrderRepository {
     }
     throw Exception(apiResponse.message);
   }
+
+  Future<OrderModel> updateOrder(String id, Map<String, dynamic> data) async {
+    final response = await _client.dio.put(ApiEndpoints.orderDetail(id), data: data);
+    final apiResponse = ApiResponse<OrderModel>.fromJson(
+      response.data,
+      (data) => OrderModel.fromJson(data as Map<String, dynamic>),
+    );
+    if (apiResponse.success && apiResponse.data != null) {
+      return apiResponse.data!;
+    }
+    throw Exception(apiResponse.message);
+  }
+
+  Future<void> deleteOrder(String id) async {
+    final response = await _client.dio.delete(ApiEndpoints.orderDetail(id));
+    final apiResponse = ApiResponse.fromJson(response.data, null);
+    if (!apiResponse.success) {
+      throw Exception(apiResponse.message);
+    }
+  }
 }

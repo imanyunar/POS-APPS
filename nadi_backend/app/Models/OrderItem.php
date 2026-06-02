@@ -11,7 +11,7 @@ class OrderItem extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id', 'order_id', 'menu_item_id', 'item_name',
+        'id', 'workspace_id', 'order_id', 'menu_item_id', 'item_name',
         'quantity', 'unit_price', 'total', 'notes',
     ];
 

@@ -11,7 +11,7 @@ class Invoice extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id', 'user_id', 'customer_id', 'order_id', 'invoice_number',
+        'id', 'user_id', 'workspace_id', 'customer_id', 'order_id', 'invoice_number',
         'status', 'subtotal', 'tax', 'total', 'due_date',
     ];
 

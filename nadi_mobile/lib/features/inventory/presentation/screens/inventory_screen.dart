@@ -96,6 +96,9 @@ class _InventoryCard extends StatelessWidget {
 
   const _InventoryCard({required this.item});
 
+  bool get _isCritical => item.status == 'out_of_stock' || (item.status == 'low_stock' && item.quantity <= 3);
+  bool get _isWarning => item.status == 'low_stock';
+
   ServeBadge get _badge => switch (item.status) {
         'in_stock' => ServeBadge.completed().copyWith(label: 'Tersedia'),
         'low_stock' => ServeBadge.unpaid().copyWith(label: 'Stok Menipis'),
@@ -103,63 +106,102 @@ class _InventoryCard extends StatelessWidget {
         _ => ServeBadge.pending(),
       };
 
+  Color get _glowColor => item.status == 'out_of_stock'
+      ? ServeColors.danger.withValues(alpha: 0.15)
+      : ServeColors.warning.withValues(alpha: 0.12);
+
   @override
   Widget build(BuildContext context) {
-    return ServeCard(
-      onTap: () => context.go('/more/inventory/${item.id}/edit'),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: ServeColors.accentIndigoBg,
+    final bool showGlow = _isCritical || _isWarning;
+
+    return Container(
+      decoration: showGlow
+          ? BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.inventory_2_outlined, color: ServeColors.accentIndigo),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(item.name, style: ServeTypography.h3(color: ServeColors.textPrimary)),
-                    ),
-                    const SizedBox(width: 8),
-                    _badge,
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text('SKU: ${item.sku}', style: ServeTypography.labelSmall(color: ServeColors.textSecondary)),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Stok', style: ServeTypography.labelSmall(color: ServeColors.textMuted)),
-                        Text('${item.quantity}', style: ServeTypography.labelLarge(color: item.quantity <= 5 ? ServeColors.danger : ServeColors.textPrimary)),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text('Harga', style: ServeTypography.labelSmall(color: ServeColors.textMuted)),
-                        Text(ServeFormatters.rupiah(item.unitPrice), style: ServeTypography.labelLarge(color: ServeColors.textPrimary)),
-                      ],
-                    ),
-                  ],
+              boxShadow: [
+                BoxShadow(
+                  color: _glowColor,
+                  blurRadius: 12,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 2),
                 ),
               ],
+            )
+          : null,
+      child: ServeCard(
+        onTap: () => context.go('/more/inventory/${item.id}/edit'),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: showGlow
+                    ? (_isCritical ? ServeColors.dangerBg : ServeColors.warningBg)
+                    : ServeColors.accentIndigoBg,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                _isCritical
+                    ? Icons.warning_rounded
+                    : Icons.inventory_2_outlined,
+                color: showGlow
+                    ? (_isCritical ? ServeColors.danger : ServeColors.warning)
+                    : ServeColors.accentIndigo,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(item.name, style: ServeTypography.h3(color: ServeColors.textPrimary)),
+                      ),
+                      const SizedBox(width: 8),
+                      _badge,
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text('SKU: ${item.sku}', style: ServeTypography.labelSmall(color: ServeColors.textSecondary)),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Stok', style: ServeTypography.labelSmall(color: ServeColors.textMuted)),
+                          Text(
+                            '${item.quantity}',
+                            style: ServeTypography.labelLarge(
+                              color: _isCritical
+                                  ? ServeColors.danger
+                                  : _isWarning
+                                      ? ServeColors.warning
+                                      : ServeColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text('Harga', style: ServeTypography.labelSmall(color: ServeColors.textMuted)),
+                          Text(ServeFormatters.rupiah(item.unitPrice), style: ServeTypography.labelLarge(color: ServeColors.textPrimary)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

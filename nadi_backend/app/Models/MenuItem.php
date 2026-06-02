@@ -11,7 +11,7 @@ class MenuItem extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id', 'user_id', 'name', 'description', 'price', 'category',
+        'id', 'user_id', 'workspace_id', 'name', 'description', 'price', 'category',
         'is_available', 'estimated_prep_minutes', 'track_stock',
         'stock_quantity', 'low_stock_threshold',
     ];

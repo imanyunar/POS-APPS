@@ -11,7 +11,7 @@ class Note extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id', 'user_id', 'customer_id', 'title', 'content',
+        'id', 'user_id', 'workspace_id', 'customer_id', 'title', 'content',
         'category', 'is_pinned',
     ];
 

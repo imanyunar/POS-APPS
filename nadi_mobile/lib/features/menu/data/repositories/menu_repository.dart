@@ -61,4 +61,12 @@ class MenuRepository {
     }
     throw Exception(apiResponse.message);
   }
+
+  Future<void> deleteMenuItem(String id) async {
+    final response = await _client.dio.delete(ApiEndpoints.menuItemDetail(id));
+    final apiResponse = ApiResponse.fromJson(response.data, null);
+    if (!apiResponse.success) {
+      throw Exception(apiResponse.message);
+    }
+  }
 }

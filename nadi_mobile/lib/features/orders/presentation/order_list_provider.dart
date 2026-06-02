@@ -36,4 +36,22 @@ class OrderListNotifier extends _$OrderListNotifier {
       state = previousState;
     }
   }
+
+  Future<void> updateOrder(String id, Map<String, dynamic> data) async {
+    await ref.read(orderRepositoryProvider).updateOrder(id, data);
+    await refresh();
+  }
+
+  Future<void> deleteOrder(String id) async {
+    final previousState = state;
+    if (state.value != null) {
+      state = AsyncValue.data(state.value!.where((o) => o.id != id).toList());
+    }
+    try {
+      await ref.read(orderRepositoryProvider).deleteOrder(id);
+    } catch (e) {
+      state = previousState;
+      rethrow;
+    }
+  }
 }

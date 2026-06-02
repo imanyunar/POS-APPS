@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:serve_app/core/constants/colors.dart';
 import 'package:serve_app/core/constants/typography.dart';
 import 'package:serve_app/core/utils/formatters.dart';
@@ -16,6 +17,43 @@ class OrderDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
+  Future<bool> _deleteOrder() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Pesanan?'),
+        content: const Text('Tindakan ini tidak dapat dibatalkan.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), 
+            child: const Text('Hapus', style: TextStyle(color: ServeColors.danger)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      try {
+        await ref.read(orderListNotifierProvider.notifier).deleteOrder(widget.orderId);
+        if (mounted) {
+          context.pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Pesanan dihapus'), backgroundColor: ServeColors.success),
+          );
+        }
+        return true;
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal menghapus: $e'), backgroundColor: ServeColors.danger),
+          );
+        }
+      }
+    }
+    return false;
+  }
+
   Future<void> _updateStatus(String currentStatus, String newStatus) async {
     if (currentStatus == newStatus) return;
 
@@ -44,6 +82,18 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
       backgroundColor: ServeColors.bgBase,
       appBar: AppBar(
         title: const Text('Detail Pesanan'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_rounded),
+            onPressed: () => context.go('/orders/${widget.orderId}/edit'),
+            tooltip: 'Edit Pesanan',
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline_rounded, color: ServeColors.danger),
+            onPressed: _deleteOrder,
+            tooltip: 'Hapus Pesanan',
+          ),
+        ],
       ),
       body: orderAsync.when(
         data: (order) {

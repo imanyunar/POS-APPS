@@ -16,6 +16,40 @@ class MenuScreen extends ConsumerStatefulWidget {
 }
 
 class _MenuScreenState extends ConsumerState<MenuScreen> {
+  Future<void> _deleteMenuItem(String id, String name) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Hapus Menu?'),
+        content: Text('Apakah Anda yakin ingin menghapus "$name"? Tindakan ini tidak dapat dibatalkan.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Batal')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true), 
+            child: const Text('Hapus', style: TextStyle(color: ServeColors.danger)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      try {
+        await ref.read(menuListNotifierProvider.notifier).deleteMenuItem(id);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Menu berhasil dihapus'), backgroundColor: ServeColors.success),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal menghapus: $e'), backgroundColor: ServeColors.danger),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final menuAsync = ref.watch(menuListNotifierProvider);
@@ -65,7 +99,10 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                     ),
                     ...entry.value.map((item) => Padding(
                       padding: const EdgeInsets.only(bottom: 10),
-                      child: _MenuItemCard(item: item),
+                      child: _MenuItemCard(
+                        item: item,
+                        onDelete: () => _deleteMenuItem(item.id, item.name),
+                      ),
                     )),
                   ],
                 );
@@ -94,8 +131,9 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
 
 class _MenuItemCard extends StatelessWidget {
   final MenuItemModel item;
+  final VoidCallback? onDelete;
 
-  const _MenuItemCard({required this.item});
+  const _MenuItemCard({required this.item, this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -178,6 +216,17 @@ class _MenuItemCard extends StatelessWidget {
                         ),
                         child: Text('Non-aktif', style: ServeTypography.labelSmall(color: ServeColors.danger)),
                       ),
+                    if (onDelete != null) ...[
+                      const SizedBox(width: 8),
+                      InkWell(
+                        onTap: onDelete,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Icon(Icons.delete_outline_rounded, size: 18, color: ServeColors.textMuted),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],

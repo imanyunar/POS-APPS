@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:go_router/go_router.dart';
 import 'package:serve_app/core/constants/colors.dart';
 import 'package:serve_app/core/constants/typography.dart';
@@ -35,10 +37,15 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
     return all.where((o) => o.status == status).toList();
   }
 
+  void _updateStatus(String id, String newStatus) {
+    HapticFeedback.lightImpact();
+    ref.read(orderListNotifierProvider.notifier).updateOrderStatus(id, newStatus);
+  }
+
   @override
   Widget build(BuildContext context) {
     final ordersAsync = ref.watch(orderListNotifierProvider);
-    
+
     return Scaffold(
       backgroundColor: ServeColors.bgBase,
       appBar: AppBar(
@@ -72,10 +79,22 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
         data: (orders) => TabBarView(
           controller: _tabController,
           children: [
-            _OrderList(orders: _filteredOrders(orders, null)),
-            _OrderList(orders: _filteredOrders(orders, 'pending')),
-            _OrderList(orders: _filteredOrders(orders, 'preparing')),
-            _OrderList(orders: _filteredOrders(orders, 'completed')),
+            _OrderList(
+              orders: _filteredOrders(orders, null),
+              onUpdateStatus: _updateStatus,
+            ),
+            _OrderList(
+              orders: _filteredOrders(orders, 'pending'),
+              onUpdateStatus: _updateStatus,
+            ),
+            _OrderList(
+              orders: _filteredOrders(orders, 'preparing'),
+              onUpdateStatus: _updateStatus,
+            ),
+            _OrderList(
+              orders: _filteredOrders(orders, 'completed'),
+              onUpdateStatus: _updateStatus,
+            ),
           ],
         ),
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -89,8 +108,9 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen>
 
 class _OrderList extends StatelessWidget {
   final List<OrderModel> orders;
+  final void Function(String id, String newStatus) onUpdateStatus;
 
-  const _OrderList({required this.orders});
+  const _OrderList({required this.orders, required this.onUpdateStatus});
 
   @override
   Widget build(BuildContext context) {
@@ -105,15 +125,42 @@ class _OrderList extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       itemCount: orders.length,
       separatorBuilder: (_, __) => const SizedBox(height: 10),
-      itemBuilder: (context, i) => _OrderCard(order: orders[i]),
+      itemBuilder: (context, i) => _SlidableOrderCard(
+        order: orders[i],
+        onUpdateStatus: onUpdateStatus,
+      ),
     );
   }
 }
 
-class _OrderCard extends StatelessWidget {
+class _SlidableOrderCard extends StatelessWidget {
   final OrderModel order;
+  final void Function(String id, String newStatus) onUpdateStatus;
 
-  const _OrderCard({required this.order});
+  const _SlidableOrderCard({required this.order, required this.onUpdateStatus});
+
+  void _swipeToNext(BuildContext context) {
+    switch (order.status) {
+      case 'pending':
+        onUpdateStatus(order.id, 'preparing');
+        _showSnackBar(context, 'Pesanan diproses');
+      case 'preparing':
+        onUpdateStatus(order.id, 'completed');
+        _showSnackBar(context, 'Pesanan selesai');
+      case 'completed':
+        _showSnackBar(context, 'Pesanan sudah selesai');
+    }
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: ServeColors.success,
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
 
   ServeBadge get _badge => switch (order.status) {
         'pending' => ServeBadge.pending(),
@@ -123,51 +170,103 @@ class _OrderCard extends StatelessWidget {
         _ => ServeBadge.pending(),
       };
 
+  List<Widget> _leftSlidableActions(BuildContext context) {
+    if (order.status == 'completed') return [];
+    return [
+      SlidableAction(
+        onPressed: (_) => _swipeToNext(context),
+        backgroundColor: order.status == 'pending'
+            ? ServeColors.orderPreparing
+            : ServeColors.success,
+        foregroundColor: Colors.white,
+        icon: order.status == 'pending'
+            ? Icons.play_arrow_rounded
+            : Icons.check_rounded,
+        label: order.status == 'pending' ? 'Proses' : 'Selesai',
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ];
+  }
+
+  List<Widget> _rightSlidableActions(BuildContext context) {
+    if (order.status == 'pending') return [];
+    return [
+      SlidableAction(
+        onPressed: (_) {
+          switch (order.status) {
+            case 'preparing':
+              onUpdateStatus(order.id, 'pending');
+              _showSnackBar(context, 'Dikembalikan ke pending');
+            case 'completed':
+              onUpdateStatus(order.id, 'preparing');
+              _showSnackBar(context, 'Dikembalikan ke proses');
+          }
+        },
+        backgroundColor: ServeColors.warning,
+        foregroundColor: Colors.white,
+        icon: Icons.undo_rounded,
+        label: 'Kembali',
+        borderRadius: BorderRadius.circular(12),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ServeCard(
-      onTap: () => context.go('/orders/${order.id}'),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(order.customerName,
-                    style: ServeTypography.h3(color: ServeColors.textPrimary)),
-              ),
-              _badge,
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Icon(Icons.dining_rounded, size: 14, color: ServeColors.textMuted),
-              const SizedBox(width: 4),
-              Text(order.orderType,
-                  style: ServeTypography.bodySmall(color: ServeColors.textSecondary)),
-              if (order.tableNumber != null && order.tableNumber!.isNotEmpty) ...[
-                const SizedBox(width: 12),
-                Icon(Icons.table_restaurant_rounded, size: 14, color: ServeColors.textMuted),
-                const SizedBox(width: 4),
-                Text('Meja ${order.tableNumber}',
-                    style: ServeTypography.bodySmall(color: ServeColors.textSecondary)),
+    return Slidable(
+      key: ValueKey(order.id),
+      endActionPane: ActionPane(
+        motion: const BehindMotion(),
+        children: _leftSlidableActions(context),
+      ),
+      startActionPane: ActionPane(
+        motion: const BehindMotion(),
+        children: _rightSlidableActions(context),
+      ),
+      child: ServeCard(
+        onTap: () => context.go('/orders/${order.id}'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(order.customerName,
+                      style: ServeTypography.h3(color: ServeColors.textPrimary)),
+                ),
+                _badge,
               ],
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Text(order.orderNumber,
-                  style: ServeTypography.labelSmall(color: ServeColors.textMuted)),
-              const Spacer(),
-              Text(
-                'Rp ${(order.totalAmount / 1000).toStringAsFixed(0)}rb',
-                style: ServeTypography.labelMedium(color: ServeColors.textPrimary),
-              ),
-            ],
-          ),
-        ],
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Icon(Icons.dining_rounded, size: 14, color: ServeColors.textMuted),
+                const SizedBox(width: 4),
+                Text(order.orderType,
+                    style: ServeTypography.bodySmall(color: ServeColors.textSecondary)),
+                if (order.tableNumber != null && order.tableNumber!.isNotEmpty) ...[
+                  const SizedBox(width: 12),
+                  Icon(Icons.table_restaurant_rounded, size: 14, color: ServeColors.textMuted),
+                  const SizedBox(width: 4),
+                  Text('Meja ${order.tableNumber}',
+                      style: ServeTypography.bodySmall(color: ServeColors.textSecondary)),
+                ],
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Text(order.orderNumber,
+                    style: ServeTypography.labelSmall(color: ServeColors.textMuted)),
+                const Spacer(),
+                Text(
+                  'Rp ${(order.totalAmount / 1000).toStringAsFixed(0)}rb',
+                  style: ServeTypography.labelMedium(color: ServeColors.textPrimary),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

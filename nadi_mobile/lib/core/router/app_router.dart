@@ -11,6 +11,7 @@ import '../../features/customers/presentation/screens/customer_detail_screen.dar
 import '../../features/orders/presentation/screens/orders_screen.dart';
 import '../../features/orders/presentation/screens/order_create_screen.dart';
 import '../../features/orders/presentation/screens/order_detail_screen.dart';
+import '../../features/orders/presentation/screens/order_edit_screen.dart';
 import '../../features/invoices/presentation/screens/invoices_screen.dart';
 import '../../features/invoices/presentation/screens/invoice_builder_screen.dart';
 import '../../features/invoices/presentation/screens/invoice_detail_screen.dart';
@@ -112,6 +113,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 name: 'order-detail',
                 builder: (context, state) =>
                     OrderDetailScreen(orderId: state.pathParameters['id']!),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    name: 'order-edit',
+                    builder: (context, state) =>
+                        OrderEditScreen(orderId: state.pathParameters['id']!),
+                  ),
+                ],
               ),
             ],
           ),

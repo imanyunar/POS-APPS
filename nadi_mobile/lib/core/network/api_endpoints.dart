@@ -40,4 +40,8 @@ class ApiEndpoints {
   static String noteDetail(String id) => '/notes/$id';
 
   static const String activities = '/dashboard/activities';
+
+  // Payments
+  static const String paymentCreateLink = '/payments/create-link';
+  static String paymentStatus(String invoiceId) => '/payments/$invoiceId/status';
 }

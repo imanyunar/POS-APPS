@@ -11,7 +11,7 @@ class InventoryItem extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id', 'user_id', 'name', 'sku', 'quantity', 'unit_price',
+        'id', 'user_id', 'workspace_id', 'name', 'sku', 'quantity', 'unit_price',
         'low_stock_threshold', 'unit', 'status',
     ];
 

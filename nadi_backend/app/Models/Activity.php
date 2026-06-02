@@ -11,7 +11,7 @@ class Activity extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'id', 'user_id', 'customer_id', 'type', 'details',
+        'id', 'user_id', 'workspace_id', 'customer_id', 'type', 'details',
     ];
 
     protected function casts(): array

@@ -32,4 +32,9 @@ class MenuListNotifier extends _$MenuListNotifier {
     await ref.read(menuRepositoryProvider).toggleAvailability(id);
     await refresh();
   }
+
+  Future<void> deleteMenuItem(String id) async {
+    await ref.read(menuRepositoryProvider).deleteMenuItem(id);
+    await refresh();
+  }
 }
