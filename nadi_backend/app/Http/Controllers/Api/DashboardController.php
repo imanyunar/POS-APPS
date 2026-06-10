@@ -3,73 +3,52 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\ActivityResource;
-use App\Models\Activity;
-use App\Models\Invoice;
-use App\Models\InventoryItem;
-use App\Models\Order;
-use App\Models\Task;
-use Carbon\Carbon;
+use App\Models\Product;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    public function getVitals(Request $request)
+    public function summary(Request $request)
     {
-        $workspaceId = $request->attributes->get('workspace')->id;
-        $today = Carbon::today();
+        $workspaceId = $request->user()->workspace_id;
+        $today = now()->startOfDay();
 
-        $todayRevenue = Invoice::where('workspace_id', $workspaceId)
-            ->where('status', 'paid')
-            ->whereDate('created_at', $today)
-            ->sum('total');
+        $todayRevenue = Transaction::where('workspace_id', $workspaceId)
+            ->where('created_at', '>=', $today)
+            ->where('status', 'completed')
+            ->sum('grand_total');
 
-        $activeOrdersCount = Order::where('workspace_id', $workspaceId)
-            ->whereIn('status', ['pending', 'preparing', 'ready'])
+        $todayCount = Transaction::where('workspace_id', $workspaceId)
+            ->where('created_at', '>=', $today)
+            ->where('status', 'completed')
             ->count();
 
-        $pendingInvoices = Invoice::where('workspace_id', $workspaceId)
-            ->where('status', 'unpaid');
-        $pendingInvoicesCount = $pendingInvoices->count();
-        $pendingInvoicesAmount = $pendingInvoices->sum('total');
-
-        $lowStockCount = InventoryItem::where('workspace_id', $workspaceId)
-            ->where('status', 'low_stock')
+        $lowStockCount = Product::where('workspace_id', $workspaceId)
+            ->where('is_active', true)
+            ->whereColumn('stock', '<=', 'min_stock')
             ->count();
 
-        $todayTasksCompleted = Task::where('workspace_id', $workspaceId)
-            ->where('is_completed', true)
-            ->whereDate('updated_at', $today)
+        $totalProducts = Product::where('workspace_id', $workspaceId)
+            ->where('is_active', true)
             ->count();
 
         return response()->json([
-            'success' => true,
-            'message' => 'Dashboard vitals retrieved',
-            'data' => [
-                'todayRevenue' => (float) $todayRevenue,
-                'activeOrdersCount' => $activeOrdersCount,
-                'pendingInvoicesCount' => $pendingInvoicesCount,
-                'pendingInvoicesAmount' => (float) $pendingInvoicesAmount,
-                'lowStockCount' => $lowStockCount,
-                'todayTasksCompleted' => $todayTasksCompleted,
-            ],
-            'meta' => ['timestamp' => now()->toIso8601String()],
+            'today_revenue' => (int) $todayRevenue,
+            'today_transactions' => $todayCount,
+            'low_stock_count' => $lowStockCount,
+            'total_products' => $totalProducts,
         ]);
     }
 
-    public function getActivities(Request $request)
+    public function recentTransactions(Request $request)
     {
-        $activities = Activity::where('workspace_id', $request->attributes->get('workspace')->id)
-            ->with('customer')
+        $transactions = Transaction::where('workspace_id', $request->user()->workspace_id)
+            ->with('cashier')
             ->latest()
-            ->take(20)
+            ->take(10)
             ->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Activities retrieved',
-            'data' => ActivityResource::collection($activities),
-            'meta' => ['timestamp' => now()->toIso8601String()],
-        ]);
+        return response()->json($transactions);
     }
 }
