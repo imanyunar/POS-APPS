@@ -36,7 +36,7 @@ class CartItem {
 }
 
 // BUG-03 fix: nama class harus CartNotifier agar ter-generate sebagai cartNotifierProvider
-@riverpod
+@Riverpod(keepAlive: true)
 class CartNotifier extends _$CartNotifier {
   @override
   List<CartItem> build() => [];

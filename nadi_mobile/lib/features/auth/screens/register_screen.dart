@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/theme/app_colors.dart';
 import '../providers/auth_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -36,8 +37,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // BUG-02 fix: gunakan authNotifierProvider, bukan authProvider
-      await ref.read(authNotifierProvider.notifier).register(
+      await ref.read(authProvider.notifier).register(
             _nameController.text.trim(),
             _emailController.text.trim(),
             _passwordController.text,
@@ -47,7 +47,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(e.toString()),
+            backgroundColor: AppColors.accentDark,
+          ),
         );
       }
     } finally {
@@ -58,96 +61,190 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Daftar Akun Baru')),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nama Lengkap',
-                    prefixIcon: Icon(Icons.person_outlined),
+          child: Column(
+            children: [
+              Container(
+                height: 200,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [AppColors.accent, AppColors.accentDark],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Nama wajib diisi' : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _workspaceController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nama Toko',
-                    prefixIcon: Icon(Icons.store_outlined),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(32),
+                    bottomRight: Radius.circular(32),
                   ),
-                  validator: (v) =>
-                      v == null || v.isEmpty ? 'Nama toko wajib diisi' : null,
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Create Account',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.onAccent,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Start your restaurant POS journey',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.onAccent.withValues(alpha: 0.8),
+                        ),
+                      ),
+                    ],
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Email wajib diisi';
-                    if (!v.contains('@')) return 'Email tidak valid';
-                    return null;
-                  },
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: Icon(Icons.lock_outlined),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildField(
+                        controller: _nameController,
+                        label: 'Full Name',
+                        icon: Icons.person_outlined,
+                        validator: (v) => v == null || v.isEmpty ? 'Nama wajib diisi' : null,
+                      ),
+                      const SizedBox(height: 14),
+                      _buildField(
+                        controller: _workspaceController,
+                        label: 'Store Name',
+                        icon: Icons.store_outlined,
+                        validator: (v) => v == null || v.isEmpty ? 'Nama toko wajib diisi' : null,
+                      ),
+                      const SizedBox(height: 14),
+                      _buildField(
+                        controller: _emailController,
+                        label: 'Email',
+                        icon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return 'Email wajib diisi';
+                          if (!v.contains('@')) return 'Email tidak valid';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 14),
+                      _buildField(
+                        controller: _passwordController,
+                        label: 'Password',
+                        icon: Icons.lock_outlined,
+                        obscureText: true,
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return 'Password wajib diisi';
+                          if (v.length < 6) return 'Minimal 6 karakter';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 14),
+                      _buildField(
+                        controller: _confirmPasswordController,
+                        label: 'Confirm Password',
+                        icon: Icons.lock_outlined,
+                        obscureText: true,
+                        validator: (v) {
+                          if (v == null || v.isEmpty) return 'Konfirmasi password wajib diisi';
+                          if (v != _passwordController.text) return 'Password tidak cocok';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _register,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.accent,
+                            foregroundColor: AppColors.onAccent,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 22,
+                                  width: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.5,
+                                    color: AppColors.onAccent,
+                                  ),
+                                )
+                              : const Text('Create Account', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Already have an account? ',
+                            style: TextStyle(color: AppColors.textSecondary),
+                          ),
+                          GestureDetector(
+                            onTap: () => context.pop(),
+                            child: const Text(
+                              'Sign In',
+                              style: TextStyle(
+                                color: AppColors.accent,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  obscureText: true,
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return 'Password wajib diisi';
-                    if (v.length < 6) return 'Minimal 6 karakter';
-                    return null;
-                  },
                 ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Konfirmasi Password',
-                    prefixIcon: Icon(Icons.lock_outlined),
-                  ),
-                  obscureText: true,
-                  validator: (v) {
-                    // BUG-07 fix: cek kosong dulu sebelum cek kecocokan
-                    if (v == null || v.isEmpty) return 'Konfirmasi password wajib diisi';
-                    if (v != _passwordController.text) return 'Password tidak cocok';
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _register,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(50),
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Daftar', style: TextStyle(fontSize: 16)),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    required String? Function(String?) validator,
+    bool obscureText = false,
+    TextInputType? keyboardType,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        filled: true,
+        fillColor: AppColors.surfaceTertiary,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.accent, width: 2),
+        ),
+      ),
+      validator: validator,
     );
   }
 }

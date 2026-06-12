@@ -5,7 +5,7 @@ import '../../../core/api_client.dart';
 
 part 'auth_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class AuthNotifier extends _$AuthNotifier {
   @override
   FutureOr<void> build() {}
@@ -82,7 +82,7 @@ class AuthNotifier extends _$AuthNotifier {
   }
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class UserData extends _$UserData {
   @override
   Map<String, dynamic>? build() => null;

@@ -4,9 +4,9 @@ class AppColors {
   AppColors._();
 
   // ── Brand ──
-  static const Color primary = Color(0xFF1A56DB);
-  static const Color primaryLight = Color(0xFF3B82F6);
-  static const Color primaryDark = Color(0xFF1E40AF);
+  static const Color primary = Color(0xFF00AD48);
+  static const Color primaryLight = Color(0xFFE4F8EA);
+  static const Color primaryDark = Color(0xFF008C3A);
   static const Color onPrimary = Colors.white;
 
   static const Color secondary = Color(0xFF0E9F6E);
@@ -16,10 +16,10 @@ class AppColors {
 
   // ── Surface / Background (Light) ──
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceSecondary = Color(0xFFF9FAFB);
+  static const Color surfaceSecondary = Color(0xFFF7F7F7);
   static const Color surfaceTertiary = Color(0xFFF3F4F6);
   static const Color background = Color(0xFFF3F4F6);
-  static const Color scaffoldBackground = Color(0xFFF9FAFB);
+  static const Color scaffoldBackground = Color(0xFFFFFFFF);
 
   // ── Surface / Background (Dark) ──
   static const Color surfaceDark = Color(0xFF1F2937);
@@ -65,6 +65,14 @@ class AppColors {
   static const Color posCartBgDark = Color(0xFF111827);
   static const Color lowStock = Color(0xFFF97316);
   static const Color outOfStock = Color(0xFFEF4444);
+
+  // ── Restaurant POS accent (aligned to grocery green) ──
+  static const Color accent = Color(0xFF00AD48);
+  static const Color accentLight = Color(0xFFE4F8EA);
+  static const Color accentDark = Color(0xFF008C3A);
+  static const Color onAccent = Colors.white;
+  static const Color badge = Color(0xFF00AD48);
+  static const Color cardBg = Color(0xFFFFFFFF);
 }
 
 class AppColorScheme {

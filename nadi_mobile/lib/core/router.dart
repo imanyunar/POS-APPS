@@ -4,7 +4,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../features/auth/screens/login_screen.dart';
 import '../features/auth/screens/register_screen.dart';
-import '../features/dashboard/screens/dashboard_screen.dart';
+import '../features/home/screens/home_screen.dart';
+import '../features/menu/screens/menu_screen.dart';
+import '../features/notifications/screens/notifications_screen.dart';
+import '../features/customer/screens/customer_info_screen.dart';
+import '../features/order_detail/screens/order_detail_screen.dart';
 import '../features/pos/screens/pos_screen.dart';
 import '../features/pos/screens/payment_screen.dart';
 import '../features/pos/screens/receipt_screen.dart';
@@ -18,20 +22,19 @@ part 'router.g.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-@riverpod
+@Riverpod(keepAlive: true)
 GoRouter router(Ref ref) {
-  final authState = ref.watch(authTokenProvider);
-
-  return GoRouter(
+  final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/login',
     redirect: (context, state) {
-      final isLoggedIn = authState != null;
+      final token = ref.read(authTokenProvider);
+      final isLoggedIn = token != null;
       final isAuthRoute = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register';
 
       if (!isLoggedIn && !isAuthRoute) return '/login';
-      if (isLoggedIn && isAuthRoute) return '/';
+      if (isLoggedIn && isAuthRoute) return '/home';
       return null;
     },
     routes: [
@@ -45,7 +48,27 @@ GoRouter router(Ref ref) {
       ),
       GoRoute(
         path: '/',
-        builder: (context, state) => const DashboardScreen(),
+        redirect: (context, state) => '/home',
+      ),
+      GoRoute(
+        path: '/home',
+        builder: (context, state) => const HomeScreen(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
+        path: '/menu',
+        builder: (context, state) => const MenuScreen(),
+      ),
+      GoRoute(
+        path: '/customer_info',
+        builder: (context, state) => const CustomerInfoScreen(),
+      ),
+      GoRoute(
+        path: '/order_detail',
+        builder: (context, state) => const OrderDetailScreen(),
       ),
       GoRoute(
         path: '/pos',
@@ -87,4 +110,10 @@ GoRouter router(Ref ref) {
       ),
     ],
   );
+
+  ref.listen(authTokenProvider, (previous, next) {
+    router.refresh();
+  });
+
+  return router;
 }

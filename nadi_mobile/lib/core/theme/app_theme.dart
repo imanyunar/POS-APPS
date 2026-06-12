@@ -24,8 +24,8 @@ class AppTheme {
 
   // ── Border radius ──
   static const double radiusSm = 4;
-  static const double radiusMd = 8;
-  static const double radiusLg = 12;
+  static const double radiusMd = 15;
+  static const double radiusLg = 15;
   static const double radiusXl = 16;
   static const double radiusFull = 999;
 
@@ -212,6 +212,7 @@ class AppTheme {
 
   /// POS-specific card for product grid
   static BoxDecoration posProductCard(ColorScheme colorScheme, {Color? categoryColor}) {
+
     final isLight = colorScheme.brightness == Brightness.light;
     return BoxDecoration(
       color: isLight ? AppColors.posProductCard : AppColors.posProductCardDark,
@@ -227,4 +228,25 @@ class AppTheme {
       ),
     );
   }
+}
+
+class AppElevation {
+  AppElevation._();
+  static const List<BoxShadow> subtle = [
+    BoxShadow(color: Color(0x08000000), blurRadius: 4, offset: Offset(0, 2)),
+  ];
+  static const List<BoxShadow> medium = [
+    BoxShadow(color: Color(0x10000000), blurRadius: 8, offset: Offset(0, 4)),
+  ];
+  static const List<BoxShadow> large = [
+    BoxShadow(color: Color(0x18000000), blurRadius: 16, offset: Offset(0, 8)),
+  ];
+}
+
+class AppIcons {
+  AppIcons._();
+  static const double small = 20;
+  static const double medium = 24;
+  static const double large = 32;
+  static const double xl = 40;
 }

@@ -1,5 +1,5 @@
 <?php
-$ch = curl_init('http://127.0.0.1:8000/api/auth/login');
+$ch = curl_init('http://127.0.0.1:3000/api/auth/login');
 curl_setopt_array($ch, [
     CURLOPT_POST => true,
     CURLOPT_POSTFIELDS => json_encode(['email'=>'owner@warung.test','password'=>'password']),

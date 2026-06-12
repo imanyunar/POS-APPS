@@ -20,7 +20,7 @@ final class AuthNotifierProvider
         argument: null,
         retry: null,
         name: r'authProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -33,7 +33,7 @@ final class AuthNotifierProvider
   AuthNotifier create() => AuthNotifier();
 }
 
-String _$authNotifierHash() => r'b5305fa0da545184d1ec77140e32aa5154838ae8';
+String _$authNotifierHash() => r'957df6e92dcda0f92d68f2749b83d871a47516ab';
 
 abstract class _$AuthNotifier extends $AsyncNotifier<void> {
   FutureOr<void> build();
@@ -64,7 +64,7 @@ final class UserDataProvider
         argument: null,
         retry: null,
         name: r'userDataProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -85,7 +85,7 @@ final class UserDataProvider
   }
 }
 
-String _$userDataHash() => r'114307c505fe834e2106e7da82aaaeca0e8463a5';
+String _$userDataHash() => r'ae34cf262168e0fd9311a5cfd4b33592fb39a370';
 
 abstract class _$UserData extends $Notifier<Map<String, dynamic>?> {
   Map<String, dynamic>? build();

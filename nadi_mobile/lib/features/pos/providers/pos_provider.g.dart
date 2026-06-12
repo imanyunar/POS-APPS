@@ -20,7 +20,7 @@ final class CartNotifierProvider
         argument: null,
         retry: null,
         name: r'cartProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -41,7 +41,7 @@ final class CartNotifierProvider
   }
 }
 
-String _$cartNotifierHash() => r'e32aa4653543e2be8cb4d5df63bedce4ccf42596';
+String _$cartNotifierHash() => r'319d5452bfe72aee24684611d3d2bec8b15575b3';
 
 abstract class _$CartNotifier extends $Notifier<List<CartItem>> {
   List<CartItem> build();

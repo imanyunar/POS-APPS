@@ -23,12 +23,12 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   }
 
   Future<void> _processPayment() async {
-    // BUG-03 fix: cartNotifierProvider
-    final cart = ref.read(cartNotifierProvider);
+    // BUG-03 fix: cartProvider
+    final cart = ref.read(cartProvider);
     if (cart.isEmpty) return;
 
     final amountPaid = int.tryParse(_amountController.text.replaceAll('.', ''));
-    if (amountPaid == null || amountPaid < ref.read(cartNotifierProvider.notifier).total) {
+    if (amountPaid == null || amountPaid < ref.read(cartProvider.notifier).total) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Uang tidak mencukupi'),
@@ -48,7 +48,7 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         'discount': 0,
       });
 
-      ref.read(cartNotifierProvider.notifier).clear();
+      ref.read(cartProvider.notifier).clear();
 
       if (mounted) {
         context.go('/receipt/${result['id']}');
@@ -71,8 +71,8 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // BUG-03 fix: cartNotifierProvider
-    final cart = ref.watch(cartNotifierProvider);
+    // BUG-03 fix: cartProvider
+    final cart = ref.watch(cartProvider);
     final total = cart.fold<int>(0, (sum, item) => sum + item.subtotal);
     final amountText = _amountController.text;
     final amountPaid = int.tryParse(amountText.replaceAll('.', ''));

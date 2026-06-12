@@ -2,16 +2,18 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../features/auth/providers/auth_provider.dart';
+
 part 'api_client.g.dart';
 
 // Sesuaikan dengan environment:
-// - Android Emulator : 'http://10.0.2.2:8000/api'
-// - Physical Device  : 'http://192.168.x.x:8000/api' (IP LAN laptop)
-// - iOS Simulator / Web / Desktop : 'http://127.0.0.1:8000/api'
+// - Android Emulator : 'http://10.0.2.2:3000/api'
+// - Physical Device  : 'http://192.168.x.x:3000/api' (IP LAN laptop)
+// - iOS Simulator / Web / Desktop : 'http://127.0.0.1:3000/api'
 String get _baseUrl {
-  if (kIsWeb) return 'http://127.0.0.1:8000/api';
+  if (kIsWeb) return 'http://127.0.0.1:3000/api';
   // Default ke 10.0.2.2 untuk Android emulator
-  return 'http://10.0.2.2:8000/api';
+  return 'http://10.0.2.2:3000/api';
 }
 
 @Riverpod(keepAlive: true)

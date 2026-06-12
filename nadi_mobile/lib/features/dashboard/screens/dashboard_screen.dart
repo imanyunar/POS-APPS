@@ -19,8 +19,8 @@ class DashboardScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              // BUG-02 fix: gunakan authNotifierProvider
-              await ref.read(authNotifierProvider.notifier).logout();
+              // BUG-02 fix: authProvider (generated dari AuthNotifier)
+              await ref.read(authProvider.notifier).logout();
               if (context.mounted) context.go('/login');
             },
           ),

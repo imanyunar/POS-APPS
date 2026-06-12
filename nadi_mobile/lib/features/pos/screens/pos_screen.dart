@@ -23,8 +23,8 @@ class _PosScreenState extends ConsumerState<PosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // BUG-03 fix: cartNotifierProvider bukan cartProvider
-    final cart = ref.watch(cartNotifierProvider);
+    // BUG-03 fix: cartProvider bukan cartProvider
+    final cart = ref.watch(cartProvider);
     final productsAsync = ref.watch(posProductsProvider);
 
     return Scaffold(
@@ -35,7 +35,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
             IconButton(
               icon: const Icon(Icons.delete_sweep),
               onPressed: () =>
-                  ref.read(cartNotifierProvider.notifier).clear(),
+                  ref.read(cartProvider.notifier).clear(),
             ),
         ],
       ),
@@ -96,8 +96,8 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                           return Card(
                             child: InkWell(
                               onTap: () {
-                                // BUG-03 fix: cartNotifierProvider
-                                ref.read(cartNotifierProvider.notifier).addItem(
+                                // BUG-03 fix: cartProvider
+                                ref.read(cartProvider.notifier).addItem(
                                       CartItem(
                                         productId: product['id'] as int,
                                         name: product['name'] as String,
@@ -197,7 +197,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                               key: ValueKey(item.productId),
                               direction: DismissDirection.endToStart,
                               onDismissed: (_) => ref
-                                  .read(cartNotifierProvider.notifier)
+                                  .read(cartProvider.notifier)
                                   .removeItem(index),
                               child: ListTile(
                                 dense: true,
@@ -211,7 +211,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                                       icon: const Icon(Icons.remove_circle,
                                           size: 20),
                                       onPressed: () => ref
-                                          .read(cartNotifierProvider.notifier)
+                                          .read(cartProvider.notifier)
                                           .updateQty(index, item.qty - 1),
                                     ),
                                     Text('${item.qty}'),
@@ -219,7 +219,7 @@ class _PosScreenState extends ConsumerState<PosScreen> {
                                       icon: const Icon(Icons.add_circle,
                                           size: 20),
                                       onPressed: () => ref
-                                          .read(cartNotifierProvider.notifier)
+                                          .read(cartProvider.notifier)
                                           .updateQty(index, item.qty + 1),
                                     ),
                                   ],
